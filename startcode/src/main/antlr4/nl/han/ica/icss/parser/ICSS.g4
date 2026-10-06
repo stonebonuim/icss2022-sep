@@ -41,9 +41,19 @@ MIN: '-';
 MUL: '*';
 ASSIGNMENT_OPERATOR: ':=';
 
+color: LOWER_IDENT  COLON  COLOR  SEMICOLON;
+width: LOWER_IDENT  COLON  PIXELSIZE  SEMICOLON;
+
+command: OPEN_BRACE  (color|width)*  CLOSE_BRACE;
+
+cssname: LOWER_IDENT  command;
+
+cssownname: (ID_IDENT|CLASS_IDENT) command;
+
+cssstyle: cssname* cssownname*;
 
 
 
 //--- PARSER: ---
-stylesheet: EOF;
+stylesheet:  cssstyle EOF;
 
