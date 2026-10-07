@@ -43,20 +43,22 @@ ASSIGNMENT_OPERATOR: ':=';
 
 term:CAPITAL_IDENT| PIXELSIZE| SCALAR;
 mathvariable:  PLUS| MIN| MUL ;
+assigment: ASSIGNMENT_OPERATOR (COLOR| PIXELSIZE| TRUE| FALSE) SEMICOLON;
 
 color: LOWER_IDENT  COLON  (COLOR| CAPITAL_IDENT)  SEMICOLON;
 width: LOWER_IDENT  COLON  (PIXELSIZE| CAPITAL_IDENT)  SEMICOLON;
 sumcommand:  LOWER_IDENT  COLON  sum SEMICOLON;
 
 sum:  sum mathvariable sum | term ;
-command: OPEN_BRACE  (color|width| sumcommand)*  CLOSE_BRACE;
+command: OPEN_BRACE  (color|width| sumcommand| ifcommand)*  CLOSE_BRACE;
 
 
-variable: CAPITAL_IDENT ASSIGNMENT_OPERATOR (COLOR| PIXELSIZE| TRUE| FALSE) SEMICOLON;
+variable: CAPITAL_IDENT assigment*;
 cssname: LOWER_IDENT  command;
-cssownname: (ID_IDENT|CLASS_IDENT) command;
+cssownname: (ID_IDENT|CLASS_IDENT) command ifcommand*;
+ifcommand: ((IF|ELSE) (BOX_BRACKET_OPEN variable BOX_BRACKET_CLOSE)*) command;
 
-cssstyle:variable* cssname* cssownname*;
+cssstyle: variable* cssname* cssownname* ifcommand*;
 
 
 
