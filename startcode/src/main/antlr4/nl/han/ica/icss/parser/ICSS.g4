@@ -43,9 +43,9 @@ ASSIGNMENT_OPERATOR: ':=';
 
 color: LOWER_IDENT  COLON  (COLOR| CAPITAL_IDENT)  SEMICOLON;
 width: LOWER_IDENT  COLON  (PIXELSIZE| CAPITAL_IDENT| sum)  SEMICOLON;
-mathvariable: (PLUS+ MIN+ MUL);
+mathvariable: (PLUS| MIN| MUL)+;
 
-sum: (CAPITAL_IDENT| mathvariable| PIXELSIZE| SCALAR);
+sum: (CAPITAL_IDENT| mathvariable| PIXELSIZE| SCALAR)*;
 command: OPEN_BRACE  (color|width)*  CLOSE_BRACE;
 
 
