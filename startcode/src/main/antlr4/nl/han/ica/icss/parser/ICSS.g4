@@ -42,14 +42,13 @@ MUL: '*';
 ASSIGNMENT_OPERATOR: ':=';
 
 term:CAPITAL_IDENT| PIXELSIZE| SCALAR;
-mathvariable: (PLUS| MIN| MUL);
+mathvariable:  PLUS| MIN| MUL ;
 
 color: LOWER_IDENT  COLON  (COLOR| CAPITAL_IDENT)  SEMICOLON;
 width: LOWER_IDENT  COLON  (PIXELSIZE| CAPITAL_IDENT)  SEMICOLON;
 sumcommand:  LOWER_IDENT  COLON  sum SEMICOLON;
 
-
-sum: term((mathvariable) (term))*;
+sum:  sum mathvariable sum | term ;
 command: OPEN_BRACE  (color|width| sumcommand)*  CLOSE_BRACE;
 
 
