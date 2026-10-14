@@ -49,20 +49,25 @@ color: LOWER_IDENT  COLON  (COLOR| CAPITAL_IDENT)  SEMICOLON;
 width: LOWER_IDENT  COLON  (PIXELSIZE| CAPITAL_IDENT)  SEMICOLON;
 sumcommand:  LOWER_IDENT  COLON  sum SEMICOLON;
 
+selector: LOWER_IDENT;
+
 sum: sum MUL sum |sum mathvariable sum | term ;
-command: OPEN_BRACE  (elsecommand |ifcommand | color | width | sumcommand)+  CLOSE_BRACE;
+declaration:   (elsecommand |ifcommand |color | width | sumcommand)+  ;
 
 
-variable: CAPITAL_IDENT assigment*;
-cssname: LOWER_IDENT  command;
-cssownname: (ID_IDENT|CLASS_IDENT) command ;
-ifcommand: (IF (BOX_BRACKET_OPEN variable BOX_BRACKET_CLOSE)) command;
-elsecommand: ELSE (command)*;
+variableAssignment: CAPITAL_IDENT assigment*;
+cssname:  selector OPEN_BRACE  declaration CLOSE_BRACE;
+cssownname: (ID_IDENT|CLASS_IDENT) OPEN_BRACE declaration CLOSE_BRACE;
+ifcommand: (IF (BOX_BRACKET_OPEN variableAssignment BOX_BRACKET_CLOSE)) OPEN_BRACE declaration CLOSE_BRACE;
+elsecommand: ELSE (OPEN_BRACE declaration CLOSE_BRACE)*;
 
-cssstyle: variable* cssname* cssownname* ;
+
 
 
 
 //--- PARSER: ---
-stylesheet:  cssstyle EOF;
+stylesheet:  stylerule;
+stylerule: selector OPEN_BRACE  declaration CLOSE_BRACE;
+// stylerule: variableAssignment* cssname* cssownname* ;
+
 
