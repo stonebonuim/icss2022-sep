@@ -41,33 +41,43 @@ MIN: '-';
 MUL: '*';
 ASSIGNMENT_OPERATOR: ':=';
 
-term:CAPITAL_IDENT| PIXELSIZE| SCALAR;
-mathvariable:  PLUS| MIN ;
-assigment: ASSIGNMENT_OPERATOR (COLOR| PIXELSIZE| TRUE| FALSE) SEMICOLON;
-
-color: LOWER_IDENT  COLON  (COLOR| CAPITAL_IDENT)  SEMICOLON;
-width: LOWER_IDENT  COLON  (PIXELSIZE| CAPITAL_IDENT)  SEMICOLON;
-sumcommand:  LOWER_IDENT  COLON  sum SEMICOLON;
-
-selector: LOWER_IDENT;
-
-sum: sum MUL sum |sum mathvariable sum | term ;
-declaration:   (elsecommand |ifcommand |color | width | sumcommand)+  ;
-
-
-variableAssignment: CAPITAL_IDENT assigment*;
-cssname:  selector OPEN_BRACE  declaration CLOSE_BRACE;
-cssownname: (ID_IDENT|CLASS_IDENT) OPEN_BRACE declaration CLOSE_BRACE;
-ifcommand: (IF (BOX_BRACKET_OPEN variableAssignment BOX_BRACKET_CLOSE)) OPEN_BRACE declaration CLOSE_BRACE;
-elsecommand: ELSE (OPEN_BRACE declaration CLOSE_BRACE)*;
-
 
 
 
 
 //--- PARSER: ---
-stylesheet:  stylerule;
-stylerule: selector OPEN_BRACE  declaration CLOSE_BRACE;
-// stylerule: variableAssignment* cssname* cssownname* ;
+stylesheet: stylerule;
+stylerule: (variableAssignment | cssname)*;
+
+variableAssignment: CAPITAL_IDENT ASSIGNMENT_OPERATOR expression SEMICOLON;
+
+cssname: selector OPEN_BRACE declaration* CLOSE_BRACE;
+
+selector: LOWER_IDENT #tagSelector
+        | ID_IDENT #idSelector
+        | CLASS_IDENT #classSelector;
+
+property: LOWER_IDENT;
+
+declaration: property COLON expression SEMICOLON
+           | ifcommand;
+
+mathvariable: PLUS | MIN ;
+
+literal: PIXELSIZE #pixelLiteral
+       | COLOR #colorLiteral
+       | SCALAR #scalarLiteral
+       | (TRUE | FALSE)? #boolLiteral;
+
+expression: expression MUL expression
+          | expression mathvariable expression
+          | CAPITAL_IDENT
+          | literal;
+
+ifcommand: IF BOX_BRACKET_OPEN expression BOX_BRACKET_CLOSE OPEN_BRACE declaration* CLOSE_BRACE elsecommand?;
+
+elsecommand: ELSE OPEN_BRACE declaration* CLOSE_BRACE;
+
+
 
 
