@@ -2,6 +2,7 @@ package nl.han.ica.icss.parser;
 
 import java.util.Stack;
 
+import com.google.j2objc.annotations.Property;
 import nl.han.ica.datastructures.HANStack;
 import nl.han.ica.datastructures.IHANStack;
 import nl.han.ica.icss.ast.*;
@@ -45,32 +46,71 @@ public class ASTListener extends ICSSBaseListener {
         ast.root = (Stylesheet) currentContainer.pop();
     }
 
-    public void enterStylerule(ICSSParser.StyleruleContext ctx) {
-        ASTNode stylerule = new Stylerule();
-        currentContainer.push(stylerule);
+    public void enterCssname(ICSSParser.CssnameContext ctx) {
+        currentContainer.push(new Stylerule());
     }
 
     @Override
-    public void exitStylerule(ICSSParser.StyleruleContext ctx) {
+    public void exitCssname(ICSSParser.CssnameContext ctx) {
         Stylerule stylerule = (Stylerule) currentContainer.pop();
         currentContainer.peek().addChild(stylerule);
-
     }
-
 
     @Override
     public void enterDeclaration(ICSSParser.DeclarationContext ctx) {
         Declaration declaration = new Declaration();
-        declaration.addChild(getAST())
         currentContainer.push(declaration);
     }
 
     @Override
     public void exitDeclaration(ICSSParser.DeclarationContext ctx) {
         Declaration declaration = (Declaration) currentContainer.pop();
-        declaration.getChildren();
+        if (ctx.expression() != null) {
+            declaration.addChild(buildExpression(ctx.expression()));
+        }
         currentContainer.peek().addChild(declaration);
     }
+
+    @Override
+    public void enterProperty(ICSSParser.PropertyContext ctx) {
+        currentContainer.push(new PropertyName(ctx.LOWER_IDENT().getText()));
+    }
+
+    @Override
+    public void exitProperty(ICSSParser.PropertyContext ctx) {
+        PropertyName property = (PropertyName) currentContainer.pop();
+        currentContainer.peek().addChild(property);
+    }
+
+    @Override
+    public void exitClassSelector(ICSSParser.ClassSelectorContext ctx) {
+        currentContainer.peek().addChild(
+                new ClassSelector(ctx.CLASS_IDENT().getText())
+        );
+    }
+
+    @Override
+    public void exitIdSelector(ICSSParser.IdSelectorContext ctx) {
+        currentContainer.peek().addChild(
+                new TagSelector(ctx.ID_IDENT().getText())
+        );
+    }
+
+    @Override
+    public void exitTagSelector(ICSSParser.TagSelectorContext ctx) {
+        currentContainer.peek().addChild(
+                new TagSelector(ctx.LOWER_IDENT().getText())
+        );
+    }
+
+    @Override
+    public void exitVariableAssignment(ICSSParser.VariableAssignmentContext ctx) {
+        VariableAssignment assignment = new VariableAssignment();
+        assignment.addChild(new VariableReference(ctx.CAPITAL_IDENT().getText()));
+        assignment.addChild(buildExpression(ctx.expression()));
+        currentContainer.peek().addChild(assignment);
+    }
+
 
     private Expression buildExpression(ICSSParser.ExpressionContext ctx) {
         if (ctx.MUL() != null) {
