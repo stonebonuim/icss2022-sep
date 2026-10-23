@@ -58,16 +58,20 @@ public class ASTListener extends ICSSBaseListener {
 
     @Override
     public void enterDeclaration(ICSSParser.DeclarationContext ctx) {
-        Declaration declaration = new Declaration();
-        currentContainer.push(declaration);
+        if (ctx.property() != null) {
+            Declaration declaration = new Declaration();
+            currentContainer.push(declaration);
+        }
     }
 
     @Override
     public void exitDeclaration(ICSSParser.DeclarationContext ctx) {
-        Declaration declaration = (Declaration) currentContainer.pop();
-        if (ctx.expression() != null) {
-            declaration.addChild(buildExpression(ctx.expression()));
+        if (ctx.property() == null) {
+            return;
         }
+
+        Declaration declaration = (Declaration) currentContainer.pop();
+        declaration.addChild(buildExpression(ctx.expression()));
         currentContainer.peek().addChild(declaration);
     }
 
@@ -111,6 +115,30 @@ public class ASTListener extends ICSSBaseListener {
         currentContainer.peek().addChild(assignment);
     }
 
+    @Override
+    public void enterIfcommand(ICSSParser.IfcommandContext ctx){
+        IfClause clause = new IfClause();
+        currentContainer.push(clause);
+    }
+
+    @Override
+    public void exitIfcommand(ICSSParser.IfcommandContext ctx){
+        IfClause clause = (IfClause) currentContainer.pop();
+        clause.addChild(buildExpression(ctx.expression()));
+        currentContainer.peek().addChild(clause);
+    }
+
+    @Override
+    public void enterElsecommand(ICSSParser.ElsecommandContext ctx) {
+        ElseClause clause = new ElseClause();
+        currentContainer.push(clause);
+    }
+
+    @Override
+    public void exitElsecommand(ICSSParser.ElsecommandContext ctx) {
+        ElseClause clause = (ElseClause) currentContainer.pop();
+        currentContainer.peek().addChild(clause);
+    }
 
     private Expression buildExpression(ICSSParser.ExpressionContext ctx) {
         if (ctx.MUL() != null) {
