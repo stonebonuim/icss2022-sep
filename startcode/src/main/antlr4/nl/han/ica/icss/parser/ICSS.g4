@@ -60,14 +60,16 @@ selector: LOWER_IDENT #tagSelector
 property: LOWER_IDENT;
 
 declaration: property COLON expression SEMICOLON
-           | ifcommand;
+           | ifcommand
+           | variableAssignment;
 
 mathvariable: PLUS | MIN ;
 
 literal: PIXELSIZE #pixelLiteral
        | COLOR #colorLiteral
        | SCALAR #scalarLiteral
-       | (TRUE | FALSE)? #boolLiteral;
+       | PERCENTAGE #percentageLiteral
+       | (TRUE | FALSE) #boolLiteral;
 
 expression: expression MUL expression
           | expression mathvariable expression

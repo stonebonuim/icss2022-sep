@@ -96,7 +96,7 @@ public class ASTListener extends ICSSBaseListener {
     @Override
     public void exitIdSelector(ICSSParser.IdSelectorContext ctx) {
         currentContainer.peek().addChild(
-                new TagSelector(ctx.ID_IDENT().getText())
+                new IdSelector(ctx.ID_IDENT().getText())
         );
     }
 
@@ -164,6 +164,9 @@ public class ASTListener extends ICSSBaseListener {
         ICSSParser.LiteralContext literal = ctx.literal();
         if (literal instanceof ICSSParser.PixelLiteralContext) {
             return new PixelLiteral(((ICSSParser.PixelLiteralContext) literal).PIXELSIZE().getText());
+        }
+        if (literal instanceof ICSSParser.PercentageLiteralContext){
+            return new PercentageLiteral(((ICSSParser.PercentageLiteralContext) literal).PERCENTAGE().getText());
         }
         if (literal instanceof ICSSParser.ColorLiteralContext) {
             return new ColorLiteral(((ICSSParser.ColorLiteralContext) literal).COLOR().getText());

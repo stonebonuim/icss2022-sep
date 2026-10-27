@@ -2,10 +2,10 @@
 
 ## grammatica
 
-- [ ] andere namen kijk naar de appendix en testen
+- [x] andere namen kijk naar de appendix en testen
 
 
 ## ast
 
-- [ ] ast maken
+- [x] ast maken
 - [X] IHANstack

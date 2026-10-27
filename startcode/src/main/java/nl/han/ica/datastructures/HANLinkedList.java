@@ -73,7 +73,7 @@ public class HANLinkedList<T> implements IHANLinkedList<T> {
             current = current.next;
         }
 
-        current.next = current.next.next; 
+        current.next = current.next.next;
         size--;
     }
 

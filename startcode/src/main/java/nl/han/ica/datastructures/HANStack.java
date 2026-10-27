@@ -1,13 +1,14 @@
 package nl.han.ica.datastructures;
 
-import java.util.ArrayList;
+
+import java.util.LinkedList;
 import java.util.List;
 
 public class HANStack<T> implements IHANStack<T> {
     private final List<T> stack;
 
     public HANStack() {
-        stack = new ArrayList<T>();
+        stack = new LinkedList<>();
     }
 
     @Override
