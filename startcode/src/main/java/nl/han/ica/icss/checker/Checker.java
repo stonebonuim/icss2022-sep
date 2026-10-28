@@ -1,7 +1,5 @@
 package nl.han.ica.icss.checker;
 
-import nl.han.ica.datastructures.IHANLinkedList;
-import nl.han.ica.datastructures.HANLinkedList;
 import nl.han.ica.icss.ast.*;
 import nl.han.ica.icss.ast.literals.BoolLiteral;
 import nl.han.ica.icss.ast.literals.ColorLiteral;
@@ -16,11 +14,10 @@ import java.util.HashMap;
 
 public class Checker {
 
-    private IHANLinkedList<HashMap<String, ExpressionType>> variableTypes;
+    private HashMap<VariableReference, Expression> variableTypes;
 
     public void check(AST ast) {
-        variableTypes = new HANLinkedList<>();
-        variableTypes.addFirst(new HashMap<>());
+        variableTypes = new HashMap<>();
         checkNode(ast.root);
     }
 
@@ -31,16 +28,20 @@ public class Checker {
         if (node instanceof Declaration) {
             checkDeclaration((Declaration) node);
         }
-//        if (node instanceof IfClause) {
-//            checkIfClause((IfClause) node);
-//        }
+        if (node instanceof IfClause) {
+            checkIfClause((IfClause) node);
+        }
         for (ASTNode child : node.getChildren()) {
             checkNode(child);
         }
     }
 
-    private void checkVariable(VariableAssignment node) {
+    private void checkVariable(VariableAssignment variable) {
+    if (variable.name == null || variable.expression == null) {
+        return;
+    }
 
+    variableTypes.put(variable.name, variable.expression);
     }
 
     private void checkDeclaration(Declaration declaration) {
@@ -50,8 +51,10 @@ public class Checker {
 
         ExpressionType type = getType(declaration.expression);
         if (type == ExpressionType.UNDEFINED) {
+            declaration.setError("Undefined variable");
             return;
         }
+        
 
         String property = declaration.property.name;
         boolean valid = false;
@@ -65,15 +68,22 @@ public class Checker {
         }
     }
 
-//    private void checkIfClause(IfClause ifClause) {
-//        if ( ifClause.conditionalExpression == null ) {
-//            return;
-//        }
-//        ExpressionType type = getType(ifClause.conditionalExpression);
-//        if (type != ExpressionType.BOOL ) {
-//            ifClause.setError("Ongeldig type voor property '" + ifClause.conditionalExpression + "'.");
-//        }
-//    }
+    private void checkIfClause(IfClause ifClause) {
+        if ( ifClause.conditionalExpression == null ) {
+            return;
+        }
+
+        if (ifClause.conditionalExpression instanceof VariableReference) {
+
+            if (getType(variableTypes.get(ifClause.conditionalExpression)) != ExpressionType.BOOL) {
+                ifClause.setError("De if-conditie moet een boolean zijn.");
+            }
+        }
+    }
+
+    private void checkMath(Expression expression) {
+
+    }
 
     private ExpressionType getType(Expression expression) {
         if (expression instanceof PixelLiteral) {
@@ -90,6 +100,8 @@ public class Checker {
         }
         if (expression instanceof BoolLiteral) {
             return ExpressionType.BOOL;
+        } if (expression instanceof VariableReference) {
+            return getType(variableTypes.get(expression));
         }
 
         return ExpressionType.UNDEFINED;
