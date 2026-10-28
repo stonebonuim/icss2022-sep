@@ -87,18 +87,21 @@ public class Checker {
     }
 
     private ExpressionType checkMath(Expression expression) {
+        Operation operation = (Operation) expression;
+        ExpressionType lhsType = getType(operation.lhs);
+        ExpressionType rhsType = getType(operation.rhs);
+
         if (expression instanceof BoolLiteral) {
             expression.setError("De math conditie mag geen boolean zijn");
         } if (expression instanceof ColorLiteral) {
             expression.setError("De math conditie mag geen color");
         } if (expression instanceof MultiplyOperation) {
-            if(((Operation) expression).lhs != ScalarLiteral && ((Operation) expression).rhs != ScalarLiteral) {
+            if (lhsType != ExpressionType.SCALAR && rhsType != ExpressionType.SCALAR) {
                 expression.setError("De math conditie moet een scalar hebben");
             }
         } if (expression instanceof AddOperation || expression instanceof SubtractOperation) {
-            if(getType(expression.lhs) != getType( expression.rhs)) {
+            if (lhsType != rhsType) {
                 expression.setError("De math conditie moet dezelfde operator hebben");
-
             }
         }
 
@@ -125,6 +128,7 @@ public class Checker {
             return getType(variableTypes.get(expression));
         } if( expression instanceof AddOperation || expression instanceof MultiplyOperation || expression instanceof SubtractOperation){
            checkMath(expression);
+           return ExpressionType.SCALAR;
         }
 
         return ExpressionType.UNDEFINED;
