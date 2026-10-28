@@ -6,6 +6,9 @@ import nl.han.ica.icss.ast.literals.ColorLiteral;
 import nl.han.ica.icss.ast.literals.PercentageLiteral;
 import nl.han.ica.icss.ast.literals.PixelLiteral;
 import nl.han.ica.icss.ast.literals.ScalarLiteral;
+import nl.han.ica.icss.ast.operations.AddOperation;
+import nl.han.ica.icss.ast.operations.MultiplyOperation;
+import nl.han.ica.icss.ast.operations.SubtractOperation;
 import nl.han.ica.icss.ast.types.ExpressionType;
 
 import java.util.HashMap;
@@ -49,12 +52,14 @@ public class Checker {
             return;
         }
 
+
+
         ExpressionType type = getType(declaration.expression);
         if (type == ExpressionType.UNDEFINED) {
             declaration.setError("Undefined variable");
             return;
         }
-        
+
 
         String property = declaration.property.name;
         boolean valid = false;
@@ -81,8 +86,24 @@ public class Checker {
         }
     }
 
-    private void checkMath(Expression expression) {
+    private ExpressionType checkMath(Expression expression) {
+        if (expression instanceof BoolLiteral) {
+            expression.setError("De math conditie mag geen boolean zijn");
+        } if (expression instanceof ColorLiteral) {
+            expression.setError("De math conditie mag geen color");
+        } if (expression instanceof MultiplyOperation) {
+            if(((Operation) expression).lhs != ScalarLiteral && ((Operation) expression).rhs != ScalarLiteral) {
+                expression.setError("De math conditie moet een scalar hebben");
+            }
+        } if (expression instanceof AddOperation || expression instanceof SubtractOperation) {
+            if(getType(expression.lhs) != getType( expression.rhs)) {
+                expression.setError("De math conditie moet dezelfde operator hebben");
 
+            }
+        }
+
+
+        return null;
     }
 
     private ExpressionType getType(Expression expression) {
@@ -102,6 +123,8 @@ public class Checker {
             return ExpressionType.BOOL;
         } if (expression instanceof VariableReference) {
             return getType(variableTypes.get(expression));
+        } if( expression instanceof AddOperation || expression instanceof MultiplyOperation || expression instanceof SubtractOperation){
+           checkMath(expression);
         }
 
         return ExpressionType.UNDEFINED;
